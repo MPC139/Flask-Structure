@@ -1,9 +1,11 @@
 from . import main
+from flask import render_template
+
 
 @main.route('/')
 def index():
-    return '<h1>Hello world2!</h1>'
+    return render_template('index.html')
 
 @main.route('/user/<name>')
 def user(name):
-    return f'<h1>Hello {name}</h1>'
+    return render_template('user.html',name=name)
