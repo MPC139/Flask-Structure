@@ -5,9 +5,14 @@
 {% block page_content %}
 <div class="container">
     <div class="page-header">
-        <h1>Hello, {{ name }}!</h1>
+        <h1>Hello, {{ username }}!</h1>
         <p>The local date and time is: {{ moment(current_time).format('LLL')}}.</p>
         <p>You log {{ moment(current_time).fromNow(refresh=True)}}.</p>
+    </div>
+    <div>
+        {%if favorite_color :%}
+        <p>Your favorite color is : {{ favorite_color }}</p>
+        {%endif%}
     </div>
 </div>
 {% endblock %}
