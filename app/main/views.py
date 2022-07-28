@@ -1,10 +1,12 @@
+from app.email import send_email
 from . import main
-from flask import render_template, url_for, redirect, flash, session
+from flask import render_template, url_for, redirect, flash, session, current_app
 from datetime import datetime
 from .forms import NameForm
 from .. import db
 from ..models import User,Role
-from sqlalchemy.exc import IntegrityError   
+from sqlalchemy.exc import IntegrityError
+   
 
 
 @main.route('/',methods=['GET','POST'])
@@ -22,6 +24,8 @@ def index():
                 flash("Username registered. Try with other username.")
             else:
                 flash("Username has been registered. Try to log.")
+                if current_app.config['FLASKY_ADMIN']:
+                    send_email(current_app.config['FLASKY_ADMIN'], 'New User','mail/new_user', user=user.username)
             finally:
                 form.user.data = ''
                 form.password.data = ''
