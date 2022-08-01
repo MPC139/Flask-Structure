@@ -1,10 +1,10 @@
+#!/usr/bin/env python
 import os
+import click
 from app import create_app, db
 from app.models import User, Role
-from flask_migrate import Migrate
 
-app = create_app('default') 
-migrate = Migrate(app,db)
+app = create_app(os.environ.get('FLASK_CONFIG')  or 'default') 
 
 
 @app.shell_context_processor
@@ -19,8 +19,16 @@ def make_shell_context():
 # 3- flask shell
 # Then you will see that variable db, User and Role were declared.
 
+def test():
+    """Run The unit tests."""
+    import unittest
+    tests = unittest.TestLoader().discover('tests')
+    unittest.TextTestRunner(verbosity=2).run(tests)
 
 
 if __name__=='__main__':
-    print(os.environ.get('SECRET_KEY'))
-    app.run(port= 9000)
+    if os.getenv('FLASK_CONFIG') == 'testing':
+        test()
+    else:
+        print(os.environ.get('SECRET_KEY'))
+        app.run(port= 9000)

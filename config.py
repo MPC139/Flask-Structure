@@ -1,4 +1,6 @@
+from distutils.debug import DEBUG
 import os
+from pickle import FALSE
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -24,6 +26,12 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+
+
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data.sqlite')
@@ -31,6 +39,8 @@ class ProductionConfig(Config):
 
 config = {
     'development': DevelopmentConfig,
+    'testing': TestingConfig,
     'production': ProductionConfig,
+
     'default': DevelopmentConfig
 }

@@ -25,7 +25,7 @@ def index():
             else:
                 flash("Username has been registered. Try to log.")
                 if current_app.config['FLASKY_ADMIN']:
-                    send_email(current_app.config['FLASKY_ADMIN'], 'New User','mail/new_user', user=user.username)
+                    send_email(current_app.config['FLASKY_ADMIN'], 'New User','mail/new_user', username=user.username)
             finally:
                 form.user.data = ''
                 form.password.data = ''
