@@ -1,6 +1,4 @@
-from distutils.debug import DEBUG
 import os
-from pickle import FALSE
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
