@@ -1,7 +1,7 @@
 import unittest
 import socket
 from flask import current_app
-from app import create_app,db,mail
+from app import create_app,db, email,mail
 import app
 from app.models import Role,User
 from sqlalchemy.exc import IntegrityError
@@ -31,15 +31,15 @@ class BasicsTestCase(unittest.TestCase):
 
     def test_commit_db_unique_twice(self):
         role_test = Role(name = 'test')
-        user_test = User(username = 'testing',password = '1234',favorite_color = 'red', role = role_test)
-        user_test2 = User(username = 'testing',password = '1234',favorite_color = 'red', role = role_test)
+        user_test = User(username = 'testing',password = '1234',favorite_color = 'red', role = role_test,email = 'test@test.com',confirmed =True)
+        user_test2 = User(username = 'testing',password = '1234',favorite_color = 'red', role = role_test,email = 'test@test.com',confirmed =True)
         self.db.session.add_all([role_test,user_test,user_test2])
         with self.assertRaises(IntegrityError):
             self.db.session.commit()
 
     def test_commit_db(self):
         role_test_ = Role(name = 'test')
-        user_test_ = User(username = 'testing',password = '1234',favorite_color = 'red', role = role_test_)
+        user_test_ = User(username = 'testing',password = '1234',favorite_color = 'red', role = role_test_,email = 'test@test.com',confirmed =True)
         self.db.session.add_all([role_test_,user_test_])
         self.assertTrue(self.db.session.commit() is None)
         Role.query.filter_by(name = 'test').delete()

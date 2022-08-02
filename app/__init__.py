@@ -14,7 +14,7 @@ mail = Mail()
 migrate = Migrate()
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
-login_manager.login_view = 'auth.login' 
+login_manager.login_view = 'auth.login'   #This command line is allow us to set default login function when some user is not logged. 
 
 def create_app(config_name):
     app = Flask(__name__)
