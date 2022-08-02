@@ -5,12 +5,16 @@ from config import config
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from flask_migrate import Migrate
+from flask_login import LoginManager
 
 bootstrap = Bootstrap()
 moment = Moment()
 db = SQLAlchemy()
 mail = Mail()
 migrate = Migrate()
+login_manager = LoginManager()
+login_manager.session_protection = 'strong'
+login_manager.login_view = 'auth.login' 
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -22,9 +26,13 @@ def create_app(config_name):
     moment.init_app(app)
     mail.init_app(app)
     migrate.init_app(app,db)
+    login_manager.init_app(app)
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    from .auth import auth as auth_blueprint
+    app.register_blueprint(auth_blueprint,url_prefix = '/auth')
     
     return app
 

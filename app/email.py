@@ -1,3 +1,4 @@
+import email
 from . import mail
 from flask_mail import Message
 from flask import render_template, current_app
@@ -20,3 +21,5 @@ def send_email(to, subject, template, **kwargs):
     thr.start()
     return thr
     
+# Example of sending email
+# send_email(current_app.config['FLASKY_ADMIN'], 'New User','mail/new_user', username=user.username)

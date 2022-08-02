@@ -8,5 +8,10 @@
     <h1>Welcome!</h1>
     <p>The local date and time is: {{ moment(current_time).format('LLL')}}.</p>
 </div>
-{{ wtf.quick_form(form)}}
+{% if current_user.is_authenticated %}
+    <h1>Hello {{current_user.username}}!</h1>
+{% endif %}
+{%if current_user.favorite_color%}
+    <h1>Your favorite color is {{current_user.favorite_color}}</h1>
+{% endif %}
 {% endblock %}
