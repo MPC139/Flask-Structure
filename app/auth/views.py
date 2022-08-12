@@ -50,13 +50,22 @@ def register():
                          email = form.email.data,
                          password = form.password.data)
         db.session.add(user)
-        db.session.commit()
-        token = user.generate_confirmation_token()
-        send_email(current_app.config['FLASKY_ADMIN'], 'New User','mail/new_user', user=user)
-        send_email(user.email,'Confirm Your Account',
-                                'auth/email/confirm',user = user, token = token)
-        flash('A confirmation email has been sent to you by email.')
-        return redirect(url_for('main.index'))
+        try:
+            db.session.commit()
+        except:
+            flash('email or username is registered already.')
+            db.session.rollback()
+            form.email.data = ''
+            form.username.data = ''
+            form.password.data = ''
+            form.password2.data = ''
+        else:
+            token = user.generate_confirmation_token()
+            send_email(current_app.config['FLASKY_ADMIN'], 'New User','mail/new_user', user=user)
+            send_email(user.email,'Confirm Your Account',
+                                    'auth/email/confirm',user = user, token = token)
+            flash('A confirmation email has been sent to you by email.')
+            return redirect(url_for('main.index'))
     return render_template('auth/register.html',form = form)
 
 
