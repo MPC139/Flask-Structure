@@ -1,6 +1,6 @@
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
 from . import db
 from . import login_manager
@@ -52,7 +52,7 @@ class Role(db.Model):
 # that the “Anonymous” role does not need to be represented in the database, as it is
 # designed to represent users who are not in the database.
 # To apply these roles to the database, a shell session can be used:
-# (venv) $ python manage.py shell
+# (venv) $ flask shell
 # >>> Role.insert_roles()
 # >>> Role.query.all()
 # [<Role u'Administrator'>, <Role u'User'>, <Role u'Moderator'>]
@@ -75,10 +75,11 @@ class User(UserMixin ,db.Model):
             if self.role is None:
                 self.role = Role.query.filter_by(default=True).first() 
 
+    # Token Verification
     def generate_confirmation_token(self,expiration = 3600):
         s = Serializer(current_app.config['SECRET_KEY'],expiration)
         return s.dumps({'confirm':self.id})
-        
+    
     def confirm(self,token):
         s = Serializer(current_app.config['SECRET_KEY'])
         try:
@@ -91,6 +92,7 @@ class User(UserMixin ,db.Model):
         db.session.add(self)
         return True
 
+    # Password logic
     @property
     def password(self):
         raise AttributeError('password is not readable attribute')
@@ -104,6 +106,30 @@ class User(UserMixin ,db.Model):
 
     def __repr__(self):
         return f"User {self.username}"
+
+    # Role verification
+    def can(self,permissions):
+        """The can() method added to the User model performs a bitwise and operation between
+            the requested permissions and the permissions of the assigned role. The method returns
+            True if all the requested bits are present in the role, which means that the user should
+            be allowed to perform the task. The check for administration permissions is so common
+            that it is also implemented as a standalone is_administrator() method."""
+
+        return self.role is not None and \
+        (self.role.permissions & permissions) == permissions
+
+    def is_administrator(self):
+        return self.can(Permission.ADMINISTER)
+        
+
+
+class AnonymousUser(AnonymousUserMixin):
+
+    # Role verification
+    def can(self,permissions):
+        return False
+    def is_administrator(self):
+        return False
 
 @login_manager.user_loader
 def load_user(user_id):

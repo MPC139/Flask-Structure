@@ -12,7 +12,6 @@ class Config:
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
@@ -20,11 +19,14 @@ class Config:
         pass
 
 class DevelopmentConfig(Config):
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 class TestingConfig(Config):
+    """It's important to set commit_on_teardown false"""
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = False  
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')

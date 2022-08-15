@@ -15,6 +15,3 @@ def internal_server_error(e):
 def internal_database_error(e):
     return render_template('IntegrityError.html') , 700
 
-@setting.app_errorhandler(InvalidRequestError)
-def internal_database_error_2(e):
-    return render_template('IntegrityError.html'), 700
