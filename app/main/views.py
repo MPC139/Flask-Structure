@@ -1,4 +1,4 @@
-from crypt import methods
+import hashlib
 from datetime import datetime
 from flask import render_template,abort,flash, redirect,url_for
 from flask_login import login_required,current_user
@@ -16,10 +16,12 @@ def index():
 
 @main.route('/user/<username>')
 def user(username):
-    print(username)
     user = User.query.filter_by(username = username).first()
     if user is None:
         abort(404)
+    if user.avatar_hash is None:
+        user.avatar_hash = hashlib.md5(user.email.encode('utf-8')).hexdigest()
+        db.session.add(user)
     return render_template('user.html',user=user)
 
 

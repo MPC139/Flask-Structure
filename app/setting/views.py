@@ -1,5 +1,4 @@
-from crypt import methods
-from lib2to3.pgen2 import token
+import hashlib
 from flask import render_template,redirect , url_for,flash, current_app,request,session
 from flask_login import login_user, logout_user,login_required, current_user
 from .forms import ChangePassword, ChangeEmail, ResetPassword_step_1, ResetPassword_step_2
@@ -33,6 +32,7 @@ def index():
         if current_user.verify_password(form2.password.data):
             current_user.email = form2.new_email.data 
             current_user.confirmed = False
+            current_user.avatar_hash = hashlib.md5(current_user.email.encode('utf-8')).hexdigest()
             db.session.add(current_user)
             db.session.commit()
             form2.new_email.data = ''

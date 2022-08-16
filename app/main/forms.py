@@ -27,7 +27,13 @@ class EditProfileAdminForm(FlaskForm):
         self.role.choices = [(role.id, role.name)
                              for role in Role.query.order_by(Role.name).all()]
         self.user = user
-    
+
+
+    # When a form defines a method with the prefix 'validate_' followed by the name of a field, the method is invoked in addition to any
+    # regularly defined validators. 
+    # In this case the custom validators for email and username ensure that the values given are not duplicates rising an error if the mentioned
+    # comes true.
+
     def validate_email(self,field):
         if field.data != self.user.email and \
                 User.query.filter_by(email = field.data).first():

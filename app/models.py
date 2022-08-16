@@ -1,6 +1,6 @@
+import hashlib
 from datetime import datetime
-from email.policy import default
-from flask import current_app
+from flask import current_app,request
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -74,9 +74,9 @@ class User(UserMixin ,db.Model):
     name = db.Column(db.String(64))
     location = db.Column(db.String(64))
     about_me = db.Column(db.Text())
-    favorite_color = db.Column(db.String(64))
     member_since = db.Column(db.DateTime(),default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(),default = datetime.utcnow)
+    avatar_hash = db.Column(db.String(32))
 
 
 
@@ -86,7 +86,10 @@ class User(UserMixin ,db.Model):
             if self.email == current_app.config['FLASKY_ADMIN']:
                 self.role = Role.query.filter_by(permissions = 0xff).first()
             if self.role is None:
-                self.role = Role.query.filter_by(default=True).first() 
+                self.role = Role.query.filter_by(default=True).first()
+                
+        if self.email is not None and self.avatar_hash is None:
+            self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
 
     # Token Verification
     def generate_confirmation_token(self,expiration = 3600):
@@ -139,6 +142,24 @@ class User(UserMixin ,db.Model):
         self.last_seen=datetime.utcnow()
         db.session.add(self)
 
+    def gravatar(self,size=100,default='identicon',rating = 'g'):
+        """To test this function in python shell, make sure to put the next command
+        >>> with app.test_request_context():
+...              user.gravatar()
+        """
+        if request.is_secure:
+            url = 'https://secure.gravatar.com/avatar'
+        else:
+            url = 'https://gravatar.com/avatar'
+        hash = self.avatar_hash or hashlib.md5(self.email.encode('utf-8')).hexdigest()
+        return f'{url}/{hash}?s={size}&d={default}&r={rating}'
+
+    # def validate_email(self, field):
+    #     if field.data != self.user.email and \
+    #     User.query.filter_by(email=field.data).first():
+    #     raise ValidationError('Email already registered.')
+    #
+    # I have to add this method to User model
 class AnonymousUser(AnonymousUserMixin):
 
     # Role verification
