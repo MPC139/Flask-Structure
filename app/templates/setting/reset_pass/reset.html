@@ -1,0 +1,8 @@
+<p>Dear {{ user.username }},</p>
+<p>Reset password has been solicited</p>
+<p>To continue with the process click on the link:  <a href="{{ url_for('setting.confirm', token=token, user_email=user.email, _external=True) }}">click here</a>.</p>
+<p>Alternatively, you can paste the following link in your browser's address bar:</p>
+<p>{{ url_for('setting.confirm', token=token, user_email=user.email, _external=True) }}</p>
+<p>Sincerely,</p>
+<p>The Flasky Team</p>
+<p><small>Note: replies to this email address are not monitored.</small></p>

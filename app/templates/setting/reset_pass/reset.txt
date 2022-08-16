@@ -1,0 +1,13 @@
+Dear {{user.username}}
+
+Reset password solicited
+
+to continue with the process please click on the following link:
+
+{{ url_for('setting.confirm', token=token, user_email=user.email, _external=True) }}
+
+Sincerely,
+
+The Barto Team
+
+Note: replies to this mail address are not monitored.
