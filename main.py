@@ -29,5 +29,4 @@ if __name__=='__main__':
     if os.getenv('FLASK_CONFIG') == 'testing':
         test()
     else:
-        print(os.environ.get('SECRET_KEY'))
         app.run(port= 9000)

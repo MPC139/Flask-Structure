@@ -3,15 +3,27 @@ from datetime import datetime
 from flask import render_template,abort,flash, redirect,url_for
 from flask_login import login_required,current_user
 from . import main
-from .forms import EditProfileForm,EditProfileAdminForm
-from ..models import Role, User
+from .forms import EditProfileForm,EditProfileAdminForm, PostForm
+from ..models import Permission, Post, Role, User
 from .. import db
 from ..decorators import admin_required
 
 
 @main.route('/',methods=['GET','POST'])
 def index():
-    return render_template('index.html',current_time=datetime.utcnow())
+    """Note the way the author attribute of the new post object is set to the expression
+        current_user._get_current_object(). The current_user variable from Flask-
+        Login, like all context variables, is implemented as a thread-local proxy object. This
+        object behaves like a user object but is really a thin wrapper that contains the actual user
+        object inside. The database needs a real user object, which is obtained by calling
+        _get_current_object()."""
+    form  = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        post = Post(body = form.body.data, author = current_user._get_current_object())
+        db.session.add(post)
+        return redirect(url_for('.index'))
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('index.html',form = form, posts = posts)
 
 
 @main.route('/user/<username>')

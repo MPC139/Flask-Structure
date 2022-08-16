@@ -1,5 +1,6 @@
 import hashlib
 from datetime import datetime
+from signal import default_int_handler
 from flask import current_app,request
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import UserMixin, AnonymousUserMixin
@@ -77,6 +78,7 @@ class User(UserMixin ,db.Model):
     member_since = db.Column(db.DateTime(),default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(),default = datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
+    posts = db.relationship('Post',backref = 'author', lazy = 'dynamic')
 
 
 
@@ -131,12 +133,11 @@ class User(UserMixin ,db.Model):
             be allowed to perform the task. The check for administration permissions is so common
             that it is also implemented as a standalone is_administrator() method."""
 
-        return self.role is not None and \
-            (self.role.permissions & permissions) == permissions
+        return self.role is not None and self.role.permissions & permissions == permissions
 
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
-        
+
     def ping(self):
         """Refresh last visit time of a user"""
         self.last_seen=datetime.utcnow()
@@ -160,6 +161,17 @@ class User(UserMixin ,db.Model):
     #     raise ValidationError('Email already registered.')
     #
     # I have to add this method to User model
+
+class Post(db.Model):
+    __tablename__ = 'posts'
+    id = db.Column(db.Integer, primary_key = True)
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime,index = True, default=datetime.utcnow)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+
+
+
 class AnonymousUser(AnonymousUserMixin):
 
     # Role verification
@@ -167,6 +179,8 @@ class AnonymousUser(AnonymousUserMixin):
         return False
     def is_administrator(self):
         return False
+
+login_manager.anonymous_user = AnonymousUser
 
 @login_manager.user_loader
 def load_user(user_id):
