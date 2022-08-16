@@ -1,18 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}User {{name}}{% endblock %}
+{% block title %}User {{user.username}}{% endblock %}
 
 {% block page_content %}
-<div class="container">
-    <div class="page-header">
-        <h1>Hello, {{ username }}!</h1>
-        <p>The local date and time is: {{ moment(current_time).format('LLL')}}.</p>
-        <p>You log {{ moment(current_time).fromNow(refresh=True)}}.</p>
-    </div>
-    <div>
-        {%if favorite_color :%}
-        <p>Your favorite color is : {{ favorite_color }}</p>
-        {%endif%}
-    </div>
+
+<div class="page-header">
+<h1>{{ user.username }}</h1>
+{% if user.name or user.location %}
+<p>
+{% if user.name %}{{ user.name }}{% endif %}
+{% if user.location %}
+From <a href="http://maps.google.com/?q={{ user.location }}">
+{{ user.location }}
+</a>
+{% endif %}
+</p>
+{% endif %}
+{% if current_user.is_administrator %}
+<p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>
+{% endif %}
+{% if user.about_me %}<p>{{ user.about_me }}</p>{% endif %}
+<p>
+Member since {{ moment(user.member_since).format('L') }}.
+Last seen {{ moment(user.last_seen).fromNow() }}.
+</p>
 </div>
+{% if user == current_user %}
+<a class="btn btn-default" href="{{ url_for('.edit_profile') }}">
+Edit Profile
+</a>
+{% endif %}
 {% endblock %}

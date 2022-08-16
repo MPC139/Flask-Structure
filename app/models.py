@@ -1,3 +1,5 @@
+from datetime import datetime
+from email.policy import default
 from flask import current_app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask_login import UserMixin, AnonymousUserMixin
@@ -23,8 +25,23 @@ class Role(db.Model):
 
     def __repr__(self):
         return f'Role {self.name}'
+
+
     @staticmethod
     def insert_roles():
+        """The insert_roles() function does not directly create new role objects. Instead, it tries
+            to find existing roles by name and update those. A new role object is created only for
+            role names that aren’t in the database already. This is done so that the role list can be
+            updated in the future when changes need to be made. To add a new role or change the
+            permission assignments for a role, change the roles array and rerun the function. Note
+            that the “Anonymous” role does not need to be represented in the database, as it is
+            designed to represent users who are not in the database.
+            To apply these roles to the database, a shell session can be used:
+            (venv) $ flask shell
+            >>> Role.insert_roles()
+            >>> Role.query.all()
+            [<Role u'Administrator'>, <Role u'User'>, <Role u'Moderator'>]"""
+
         roles = {
             'User':(Permission.FOLLOW |
                     Permission.COMMENT|
@@ -44,18 +61,7 @@ class Role(db.Model):
             db.session.add(role)
         db.session.commit()
 
-# The insert_roles() function does not directly create new role objects. Instead, it tries
-# to find existing roles by name and update those. A new role object is created only for
-# role names that aren’t in the database already. This is done so that the role list can be
-# updated in the future when changes need to be made. To add a new role or change the
-# permission assignments for a role, change the roles array and rerun the function. Note
-# that the “Anonymous” role does not need to be represented in the database, as it is
-# designed to represent users who are not in the database.
-# To apply these roles to the database, a shell session can be used:
-# (venv) $ flask shell
-# >>> Role.insert_roles()
-# >>> Role.query.all()
-# [<Role u'Administrator'>, <Role u'User'>, <Role u'Moderator'>]
+
 
 class User(UserMixin ,db.Model):
     __tablename__='users'
@@ -63,9 +69,16 @@ class User(UserMixin ,db.Model):
     email = db.Column(db.String(64),unique = True, index = True)
     username = db.Column(db.String(64),unique = True, index = True)
     password_hash = db.Column(db.String(128))
-    favorite_color = db.Column(db.String(64))
     role_id = db.Column(db.Integer,db.ForeignKey('roles.id'))
     confirmed = db.Column(db.Boolean,default = False)
+    name = db.Column(db.String(64))
+    location = db.Column(db.String(64))
+    about_me = db.Column(db.Text())
+    favorite_color = db.Column(db.String(64))
+    member_since = db.Column(db.DateTime(),default=datetime.utcnow)
+    last_seen = db.Column(db.DateTime(),default = datetime.utcnow)
+
+
 
     def __init__(self,**kwargs):
         super(User,self).__init__(**kwargs)
@@ -116,12 +129,15 @@ class User(UserMixin ,db.Model):
             that it is also implemented as a standalone is_administrator() method."""
 
         return self.role is not None and \
-        (self.role.permissions & permissions) == permissions
+            (self.role.permissions & permissions) == permissions
 
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
         
-
+    def ping(self):
+        """Refresh last visit time of a user"""
+        self.last_seen=datetime.utcnow()
+        db.session.add(self)
 
 class AnonymousUser(AnonymousUserMixin):
 

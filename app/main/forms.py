@@ -1,12 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField,PasswordField
-from wtforms.validators import Required
+from wtforms import StringField, SubmitField,PasswordField,TextAreaField
+from wtforms.validators import Required,Length
 
 
-
-class NameForm(FlaskForm):
-    user = StringField('Username: ', validators=[Required()])
-    password = PasswordField('Password:',validators=[Required()])
-    favorite_color = StringField('Favorite Color: ')
+class EditProfileForm(FlaskForm):
+    name = StringField('Real name', validators=[Length(1,64)])
+    location = StringField('Location', validators=[Length(1,64)])
+    about_me = TextAreaField('About me')
     submit = SubmitField('Submit')
 
