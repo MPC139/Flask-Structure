@@ -14,7 +14,7 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    FLASKY_POSTS_PER_PAGE = 30
+    FLASKY_POSTS_PER_PAGE = 10
 
     @staticmethod
     def init_app(app):

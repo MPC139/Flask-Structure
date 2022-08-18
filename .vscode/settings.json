@@ -2,10 +2,14 @@
     "cSpell.words": [
         "backref",
         "Barto",
+        "blockquote",
         "endmacro",
         "Flasky",
         "googlemail",
         "itsdangerous",
+        "linkifier",
+        "oldvalue",
+        "pagedown",
         "sqlalchemy",
         "werkzeug"
     ]
