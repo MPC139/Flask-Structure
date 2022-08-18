@@ -34,7 +34,8 @@ def user(username):
     if user.avatar_hash is None:
         user.avatar_hash = hashlib.md5(user.email.encode('utf-8')).hexdigest()
         db.session.add(user)
-    return render_template('user.html',user=user)
+    posts = user.posts.order_by(Post.timestamp.desc()).all()
+    return render_template('user.html',user=user,posts=posts)
 
 
 @main.route('/edit-profile', methods = ['GET','POST'])

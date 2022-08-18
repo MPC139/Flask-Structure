@@ -78,7 +78,7 @@ class User(UserMixin ,db.Model):
     member_since = db.Column(db.DateTime(),default=datetime.utcnow)
     last_seen = db.Column(db.DateTime(),default = datetime.utcnow)
     avatar_hash = db.Column(db.String(32))
-    posts = db.relationship('Post',backref = 'author', lazy = 'dynamic')
+    posts = db.relationship('Post',backref = 'author',lazy = 'dynamic')
 
 
 
