@@ -85,3 +85,11 @@ def edit_profile_admin(id):
     form.location.data = user.location
     form.about_me.data = user.about_me
     return render_template('edit_profile.html',form = form, user = user)
+
+@main.route('/post/<int:id>')
+def post(id):
+    """Note that the post.html template receives a list with just the post to render. Sending a
+    list is necessary so that the _posts.html template referenced by index.html and user.html
+    can be used in this page as well."""
+    post = Post.query.get_or_404(id)
+    return render_template('post.html', posts = [post])
