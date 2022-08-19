@@ -1,3 +1,4 @@
+from crypt import methods
 import hashlib
 from flask import render_template,abort,flash, redirect,url_for,current_app, request
 from flask_login import login_required,current_user
@@ -93,3 +94,19 @@ def post(id):
     can be used in this page as well."""
     post = Post.query.get_or_404(id)
     return render_template('post.html', posts = [post])
+
+@main.route('/edit/<int:id>',methods = ['GET','POST'])
+@login_required
+def edit(id):
+    post = Post.query.get_or_404(id)
+    if current_user !=post.author and \
+            not current_user.can(Permission.ADMINISTER):
+        abort(404)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.body = form.body.data
+        db.session.add(post)
+        flash('The post has been updated.')
+        return redirect(url_for('.post',id = post.id))
+    form.body.data = post.body
+    return render_template('edit_post.html',form = form)
