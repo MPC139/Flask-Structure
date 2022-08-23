@@ -1,3 +1,4 @@
+from email.policy import default
 import hashlib
 import bleach
 from markdown import markdown
@@ -63,7 +64,11 @@ class Role(db.Model):
             db.session.add(role)
         db.session.commit()
 
-
+class Follow(db.Model):
+    __tablename__='follows'
+    follower_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key = True)
+    followed_id = db.Column(db.Integer,db.ForeignKey('users.id'),primary_key = True)
+    timestamp = db.Column(db.DateTime, default = datetime.utcnow)
 
 class User(UserMixin ,db.Model):
     __tablename__='users'
@@ -84,6 +89,17 @@ class User(UserMixin ,db.Model):
     avatar_hash = db.Column(db.String(32))
     #Post objet  
     posts = db.relationship('Post',backref = 'author',lazy = 'dynamic')
+    #Follow information
+    followed = db.relationship('Follow',
+                                foreign_keys =[Follow.follower_id],
+                                backref = db.backref('follower',lazy = 'joined'),
+                                lazy = 'dynamic',
+                                cascade = 'all, delete-orphan')
+    followers = db.relationship('Follow',
+                                foreign_keys =[Follow.followed_id],
+                                backref = db.backref('followed',lazy = 'joined'),
+                                lazy = 'dynamic',
+                                cascade = 'all, delete-orphan')
 
 
     def __init__(self,**kwargs):
@@ -96,6 +112,9 @@ class User(UserMixin ,db.Model):
                 
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
+
+    def __repr__(self):
+        return f"User {self.username}"
 
     # Token Verification
     def generate_confirmation_token(self,expiration = 3600):
@@ -126,8 +145,7 @@ class User(UserMixin ,db.Model):
     def verify_password(self,password):
         return check_password_hash(self.password_hash,password)
 
-    def __repr__(self):
-        return f"User {self.username}"
+
 
     # Role verification
     def can(self,permissions):
@@ -180,12 +198,29 @@ class User(UserMixin ,db.Model):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
-    # def validate_email(self, field):
-    #     if field.data != self.user.email and \
-    #     User.query.filter_by(email=field.data).first():
-    #     raise ValidationError('Email already registered.')
-    #
-    # I have to add this method to User model
+
+    # Follow routine
+    def follow(self,user):
+        if not self.is_following(user):
+            f = Follow(follower = self, followed = user)
+            db.session.add(f)
+    
+    def unfollow(self,user):
+        f = self.followed.filter_by(followed_id = user.id).first()
+        if f:
+            db.session.delete(f)
+
+    def is_following(self,user):
+        return self.followed.filter_by(
+            followed_id = user.id).first() is not None
+    
+    def is_followed_by(self,user):
+        return self.followers.filter_by(
+        follower_id=user.id).first() is not None
+
+
+
+
 
 class Post(db.Model):
     __tablename__ = 'posts'

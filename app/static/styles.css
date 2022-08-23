@@ -34,7 +34,7 @@ div.post-content {
     margin-left: 48px;
     min-height: 48px;
 }
-div .post-footer{
+div.post-footer {
     text-align: right;
 }
 div.pagination {
@@ -65,5 +65,8 @@ div.flask-pagedown-preview h3 {
 }
 .post-body h3 {
     font-size: 120%;
+}
+.table.followers tr {
+    border-bottom: 1px solid #e0e0e0;
 }
 

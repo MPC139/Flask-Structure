@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 import os
 from app import create_app, db
-from app.models import User, Role, Post
+from app.models import Follow, User, Role, Post
 
 app = create_app(os.environ.get('FLASK_CONFIG')  or 'default') 
 
 
 @app.shell_context_processor
 def make_shell_context():       
-    return dict(db=db, User=User, Role=Role, Post = Post) 
+    return dict(db=db, User=User, Role=Role, Post=Post, Follow=Follow) 
 #This decorator allow us execute our Flask App on shell context. Then we can do some test on Database or whatever we need to do but -
 # it's necessary to add the variables that it will use 
 # For example, in this case, I going to export db(database variable), User(class Model), Role(Class Model)
