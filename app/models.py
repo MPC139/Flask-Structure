@@ -1,4 +1,3 @@
-from email.policy import default
 import hashlib
 import bleach
 from markdown import markdown
@@ -158,7 +157,7 @@ class User(UserMixin ,db.Model):
             be allowed to perform the task. The check for administration permissions is so common
             that it is also implemented as a standalone is_administrator() method."""
 
-        return self.role is not None and self.role.permissions & permissions == permissions
+        return self.role is not None and (self.role.permissions & permissions) == permissions
 
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)

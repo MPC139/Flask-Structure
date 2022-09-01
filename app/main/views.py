@@ -1,4 +1,3 @@
-from crypt import methods
 import hashlib
 from flask import render_template,abort,flash, redirect,url_for,current_app, request, make_response
 from flask_login import login_required,current_user
@@ -138,8 +137,9 @@ def post(id):
 @login_required
 def edit(id):
     post = Post.query.get_or_404(id)
-    if current_user !=post.author or \
-             current_user.can(Permission.ADMINISTER):
+    if current_user != post.author and not current_user.can(Permission.ADMINISTER):
+        print(current_user)
+        print(post.author)
         abort(404)
     form = PostForm()
     if form.validate_on_submit():
