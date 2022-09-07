@@ -27,6 +27,9 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}
+                {% if current_user.can(Permission.MODERATE_COMMENTS) %}
+                <li><a class="navbar-brand" href="{{url_for('main.moderate')}}">Moderate Comments</a></li>
+                {% endif %}
                 <li><a class="navbar-brand" href="{{url_for('setting.index')}}">Settings</a></li>
                 <li><a class="navbar-brand" href="{{ url_for('auth.logout') }}">Sign Out</a></li>
                 {% else %}
